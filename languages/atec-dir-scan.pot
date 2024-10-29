@@ -1,0 +1,170 @@
+# Copyright (C) 2024 Chris Ahrweiler
+# This file is distributed under the GPL2.
+msgid ""
+msgstr ""
+"Project-Id-Version: atec Dir-Scan\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2024-05-25T12:27:15+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.10.0\n"
+"X-Domain: atec-dir-scan\n"
+
+# ## ### GENERAL
+
+msgid "Size"
+msgstr ""
+
+msgid "Post a review"
+msgstr ""
+
+# ## ### PLUGIN SPECIFIC
+
+msgid "Root"
+msgstr ""
+
+msgid "Close all"
+msgstr ""
+
+msgid "Open all"
+msgstr ""
+
+msgid "Files"
+msgstr ""
+
+msgid "files"
+msgstr ""
+
+msgid "Loading"
+msgstr ""
+
+msgid "Loading can take a while, as the whole directory tree is scanned"
+msgstr ""
+
+# ## ### FOOTER
+
+msgid "plugins"
+msgstr "Plugins"
+
+msgid "Execution time"
+msgstr ""
+
+msgid "Dashboard"
+msgstr ""
+
+# ## ### GROUP
+
+msgid "APCu object and page cache"
+msgstr ""
+
+msgid "atec Cache Info & Statistics (OPcache, WP-object-cache, JIT, APCu, Memcached, Redis, SQLite-object-cache)"
+msgstr ""
+
+msgid "Custom code snippets for WP"
+msgstr ""
+
+msgid "DDoS block (Distributed Denial of Service Attacks)"
+msgstr ""
+
+msgid "Show debug log in admin bar"
+msgstr ""
+
+msgid "Dir Scan & Statistics (Number of files and size per directory)"
+msgstr ""
+
+msgid "Add custom meta tags to the head section"
+msgstr ""
+
+msgid "Lightweight performance tuning plugin"
+msgstr ""
+
+msgid "Custom translation strings for polylang plugin"
+msgstr ""
+
+msgid "Measure plugins & theme execution time"
+msgstr ""
+
+msgid "Add custom SMTP mail settings to WP_Mail"
+msgstr ""
+
+msgid "System Information (OS, server, memory, PHP and database details, php.ini, wp-config, .htaccess and PHP extensions)"
+msgstr ""
+
+msgid "Web map, conform with privacy regulations"
+msgstr ""
+
+msgid "Published"
+msgstr ""
+
+msgid "In review"
+msgstr ""
+
+msgid "In progress"
+msgstr ""
+
+msgid "Preview"
+msgstr ""
+
+msgid "Installed"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "All our plugins are optimized for speed, size and CPU footprint (frontend & backend)"
+msgstr ""
+
+msgid "Also, they share the same `atec-WP-plugin´ framework – so that shared code will only load once, even with multiple plugins enabled"
+msgstr ""
+
+msgid "With an average of 1 ms CPU time, we consider our plugins to be super fast. Other plugins typically require much more time (Polylang ≈ 45 ms, WooCommerce ≈ 500 ms)"
+msgstr ""
+
+msgid "All atec-plugins in the WordPress directory"
+msgstr ""
+
+msgid "Install and auto update `atec´ plugins"
+msgstr ""
+
+# ## ### LICENSE
+
+msgid "PRO license activated"
+msgstr ""
+
+msgid "Get your PRO „Lifetime-Site-License“"
+msgstr ""
+
+msgid "„Lifetime-Site-License“"
+msgstr ""
+
+msgid "Thank you for activating your „Lifetime-Site-License“."
+msgstr ""
+
+msgid "Get your „Lifetime-Site-License“ for ALL our plugins."
+msgstr ""
+
+msgid "A single license code will unlock the PRO features of ALL our plugins, site-wide"
+msgstr ""
+
+msgid "Just pay via PayPal and send us the domain name of your site"
+msgstr ""
+
+msgid "You will get your license code via email"
+msgstr ""
+
+msgid "No registration required."
+msgstr ""
+
+msgid "License code is valid for your site"
+msgstr ""
+
+msgid "License code not valid"
+msgstr ""
+
+msgid "GET YOUR LICENSE NOW"
+msgstr ""
+
+msgid "License code"
+msgstr ""
+
