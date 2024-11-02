@@ -1,11 +1,10 @@
 === atec Dir Scan ===
 Contributors: DocJoJo
-Donate link: https://www.paypal.com/paypalme/atecsystems/5eur
 Tags: Navigate through the whole directory tree of your WP installation, including file count and file size.
 Requires at least: 5.2
-Tested up to: 6.6.3
+Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.3.9
+Stable tag: 1.3.11
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,7 +21,7 @@ Frontend CPU footprint: <1 ms.
 
 == 3rd party as a service ==
 
-Once, when activating the plugin, an integrity check is requested from our server (https://atecplugins.com/).
+Once, when activating the plugin, an integrity check is requested from our server (https://atecplugins.com/) – if you give your permission.
 Privacy policy: https://atecplugins.com/privacy-policy/
 
 == Installation ==
@@ -38,6 +37,12 @@ Privacy policy: https://atecplugins.com/privacy-policy/
 1. Results
 
 == Changelog ==
+
+= 1.3.11 [2024.10.27] =
+* new glob, windows compatible
+
+= 1.3.10 [2024.10.24] =
+* framework updates
 
 = 1.3.9 [2024.10.09] =
 * new translation

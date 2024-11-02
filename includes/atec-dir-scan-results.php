@@ -2,28 +2,80 @@
 if (!defined( 'ABSPATH' )) { exit; }
 
 class ATEC_wpds_results { 
+	
+private $atec_wpds_root, $atec_wpds_home, $totalCount, $totalSize, $dirSizeArr, $inclFoldersize;
 
 private function foldersize($path): array
 {
 	$count=0; $size = filesize($path);
-	$files = scandir($path);
+	$files = glob($path.DIRECTORY_SEPARATOR.'{.[!.],}*', GLOB_BRACE);
 	foreach($files as $file) 
 	{
-		 $fullpath=$path.'/'.$file;
-		if (is_file($fullpath) && is_readable($fullpath)) $size+=@filesize($fullpath);
-	
-		 if ($file != '.' && $file != '..') 
-		 {
-			$isDir=is_dir($fullpath);
-			if (!$isDir && $file!=='.DS_Store') $count++;
-			if (is_dir($fullpath)) 
-			{ $result=$this->foldersize($fullpath); $size+=$result[1]; $count+=$result[0]; }
-		}
-		} 
+		if (is_dir($file)) { $result=$this->foldersize($file); $size+=$result[1]; $count+=$result[0]; }
+		else { $count++; $size+=@filesize($file)??0; }
+	} 
 	return [$count,$size];
 }
+
+public function lightBox($fullpath,$filename,$icon)
+{
+	$fullpath=str_replace($this->atec_wpds_root, $this->atec_wpds_home, $fullpath);
+	echo '<span onclick="lightBox(\'', esc_html($fullpath), '\',\'', esc_attr($icon), '\');">', esc_html($filename), '</a>';
+}
+
+// @codingStandardsIgnoreStart
+public function atec_wpds_find_files($dir,$depth,&$level)
+{
+	$files = glob($dir.'{.[!.],}*', GLOB_BRACE);
+	foreach($files as $f)
+	{
+		$count=substr_count($dir,DIRECTORY_SEPARATOR)-$depth;
+		while ($count<$level) { echo '</ul></li>'; $level--; }
+
+		$baseName=basename($f);
+		if (is_dir($f)) 
+		{ 		
+			if ($this->inclFoldersize)
+			{
+				$total=$this->foldersize($f);
+				$class=$total[1]>1000000 || $total[0]>100?'atec-red':'';
+				echo '<li>', esc_attr($baseName), ' – <span class="', esc_html($class), '">', 
+				esc_attr(size_format($total[1])),' (',esc_attr($total[0]),' <span class="small">', esc_attr__('files','atec-dir-scan'), '</span>)</span><ul>'; 
+			}
+			else echo '<li>', esc_attr($baseName), '<ul>';
+			$level++;
+			$this->atec_wpds_find_files($f.DIRECTORY_SEPARATOR,$depth,$level);
+		}
+		else
+		{
+			$this->totalCount++;
+			$size=filesize($f); 
+			$this->totalSize+=$size;
+			$ext=pathinfo($baseName, PATHINFO_EXTENSION);
+			$icon=getIcon($ext);
+			$preview=!in_array($icon,['media-default','media-archive']) && $ext!=='php';
+			echo '
+			<li ', ($preview?'class="blue"':''), ' data-jstree=\'{"icon":"dashicons dashicons-',esc_attr($icon),'"}\'>';
+				if ($preview) $this->lightBox($f,$baseName,$icon);			
+				else echo esc_attr($baseName);
+			echo ' – <span class="',esc_html($size>1000000?'atec-red':''),'">',esc_attr(size_format($size)),'</span>
+			</li>';
+		}
+	}
+}
+// @codingStandardsIgnoreEnd
 	
-private function getIcon($ext): string
+function __construct() {
+	
+$this->atec_wpds_root=ABSPATH;
+if (!atec_is_linux()) $this->atec_wpds_root=str_replace('/','\\',$this->atec_wpds_root);
+$this->atec_wpds_home=get_home_url().DIRECTORY_SEPARATOR;
+
+$this->totalCount=0;
+$this->totalSize=0;
+$this->dirSizeArr=[];
+
+function getIcon($ext): string
 {
 	$icon='media-default';
 	if ($ext!=='')
@@ -42,13 +94,10 @@ private function getIcon($ext): string
 	return $icon;
 }
 	
-function __construct() {
-	
 // @codingStandardsIgnoreStart
 // Scanning can take some time.
-set_time_limit(600);
+set_time_limit(3600);
 // @codingStandardsIgnoreEnd
-
 	
 echo '<div class="atec-page">';
 
@@ -56,113 +105,56 @@ echo '<div class="atec-page">';
 	
 	echo '<div class="atec-main">';
 		atec_progress();
-		$root=ABSPATH;
-		if (!atec_is_linux()) $root=str_replace('/','\\',$root);
 		
 		$url			= atec_get_url();
 		$nonce 	= wp_create_nonce(atec_nonce());
 		$nav			= atec_clean_request('nav');
+		$action		= atec_clean_request('action');
+		
+		$this->inclFoldersize = $action==='foldersize';
 	
 		if ($nav=='Info') { require_once('atec-info.php'); new ATEC_info(__DIR__,$url,$nonce); }
 		else
 		{
-
 			echo '
 			<div>
-				<div class="atec-dilb">'; atec_little_block(__('Root','atec-dir-scan').': '.esc_attr($root)); echo '</div>
-				<div class="atec-dilb atec-right">
-					<span class="atec-dilb atec-bg-white atec-border-tiny atec-box-30">'; atec_readme_button($url,$nonce); echo '	</span>
-				</div>
+				<div class="atec-dilb">'; atec_little_block(__('Root','atec-dir-scan').': '.esc_attr($this->atec_wpds_root)); echo '</div>
+				<div class="atec-dilb atec-right"><span class="atec-dilb atec-bg-w atec-border-tiny atec-box-30">'; atec_readme_button($url,$nonce); echo '	</span></div>
 			</div>';
 	
 			echo '
-				<div class="atec-g atec-border atec-mmt-10">
-			
-					<div id="dirScanButtons" style="display:none; width:100%;">
-						<a class="atec-mr-10" id="jsTreeCloseAll" href="" onclick="return jsTreeCloseAll();"><button class="button button-secondary">', esc_attr__('Close all','atec-dir-scan'), '</button></a>
-						<a id="jsTreeOpenAll" href="" onclick="return jsTreeOpenAll();"><button class="button button-secondary">', esc_attr__('Open all','atec-dir-scan'), '</button></a>
+			<div class="atec-g atec-border atec-mmt-10">
+		
+				<div id="dirScanButtons" class="atec-btn-div" style="display:none;">
+					<div class="tablenav">
+						';
+							atec_nav_button($url,$nonce,'foldersize','','Calculate folder size',false);
+							echo '
+							<a class="atec-ml-10 alignleft" id="jsTreeCloseAll" href="" onclick="return jsTreeCloseAll();"><button class="button button-secondary">', esc_attr__('Close all','atec-dir-scan'), '</button></a>
+							<a class="atec-ml-10 alignleft" id="jsTreeOpenAll" href="" onclick="return jsTreeOpenAll();"><button class="button button-secondary">', esc_attr__('Open all','atec-dir-scan'), '</button></a>
 					</div>
-						
-					<div id="dirScanLoading">
-						<small>', esc_attr__('Loading can take a while, as the whole directory tree is scanned','atec-dir-scan'), ' ...</small><br><br>
-						<img alt="', esc_attr__('Loading','atec-dir-scan'), '" src="',esc_url( plugins_url( '/assets/css/themes/default/throbber.gif', __DIR__ ) ) ,'" style="height:22px;"><br>
-					</div>';
-					atec_progress();
-							
-						$home=get_home_url().'/';
-						function lightBox($root,$home,$file,$icon)
-						{
-							$fullpath=str_replace($root, $home, $file->getPath().'/'.$file->getFilename());
-							echo '<span onclick="lightBox(\'', esc_html($fullpath), '\',\'', esc_attr($icon), '\');">', esc_html($file->getFilename()), '</a>';
-						}
-						
-						$totalSize=0; $totalCount=0; $c=0; $level=0;
-			
-						$directory = new RecursiveDirectoryIterator($root,RecursiveDirectoryIterator::SKIP_DOTS);
-						$iterator = new RecursiveIteratorIterator($directory, RecursiveIteratorIterator::SELF_FIRST); 
-						// {
-						// 	echo 'FULL '.$current->getPathName();
-						// 	echo '<br>';
-						// }
-
-					echo '
-					<div id="dirScan">
-									
-						<ul>';
-						//$iterator = new RecursiveIteratorIterator( new RecursiveDirectoryIterator($root,RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::SELF_FIRST);
-						foreach ($iterator as $file)
-						//foreach (new RecursiveIteratorIterator($directory, RecursiveIteratorIterator::SELF_FIRST) as $filename=>$file) 
-						{
-							$c++;
-							$filename=$file->getFilename();
-	
-							if (!$file->isDir()) $totalCount++;
-							$size=($file->isFile() && $file->isReadable())?@$file->getSize():0; 
-							$totalSize+=$size;
-			
-							while ($iterator->getDepth()<$level) { echo '</ul></li>'; $level--; }
-	
-							if ($file->isDir()) 
-							{
-								echo '<li>', esc_html($filename);
-							}
-							else 
-							{
-								$ext=$iterator->getExtension();
-								$icon=$this->getIcon($ext);
-								$preview=!in_array($icon,['media-default','media-archive']) && $ext!=='php';
-								echo '<li ', ($preview?'class="blue"':''), ' data-jstree=\'{"icon":"dashicons dashicons-',esc_attr($icon),'"}\'>';
-								if ($preview) lightBox($root,$home,$file,$icon);			
-								else echo esc_html($filename);
-							}
-							if ($file->isDir()) 
-							{
-								$fullpath=$file->getPathName(); //.'/'.$file->getFilename();
-								$total=$this->foldersize($fullpath);
-								$class=$total[1]>1000000 || $total[0]>100?'atec-red':'';
-								echo ' – <span class="',esc_html($class),'">',esc_attr(size_format($total[1])),' (',esc_attr($total[0]),' <span class="small">', esc_attr__('files','atec-dir-scan'), '</span>)</span><ul>'; 
-								$level++;
-							}
-							else 
-							{
-								$class=$size>1000000?'atec-red':'';
-								echo ' – <span class="',esc_html($class),'">',esc_attr(size_format($size)),'</span></li>';
-							}
-						}          
-									
-					echo '
-						</ul>
-					</div>';
+				</div>
 				
-				echo '
-					<br>
-					<div id="summary">
-						<table class="atec-table atec-table-tiny">
-							<tr><td class="atec-label">', esc_attr__('Files','atec-dir-scan'), ':</td><td>',esc_attr(number_format($totalCount)),'</td></tr>
-							<tr><td class="atec-label">', esc_attr__('Size','atec-dir-scan'), ':</td><td>',esc_attr(number_format($totalSize)),' Bytes | ',esc_html(size_format($totalSize)),'</td></tr>
-						</table>
-					</div>
+				<div id="dirScanLoading" class="atec-center">', esc_attr__('Loading directory tree','atec-dir-scan'), ' . . .<br>
+					<div class="atec-loader-dots"><span></span><span></span><span></span><span></span><span></span></div>
 				</div>';
+			
+				$level=0;
+			
+				atec_flush();
+				echo '<div id="dirScan" style="display: none;"><ul>';
+					$this->atec_wpds_find_files($this->atec_wpds_root,substr_count($this->atec_wpds_root,DIRECTORY_SEPARATOR),$level);
+				echo '</ul></div>';
+			
+				echo '
+				<br>
+				<div id="summary">
+					<table class="atec-table atec-table-tiny">
+						<tr><td class="atec-label">', esc_attr__('Files','atec-dir-scan'), ':</td><td>',esc_attr(number_format($this->totalCount)),'</td></tr>
+						<tr><td class="atec-label">', esc_attr__('Size','atec-dir-scan'), ':</td><td>',esc_attr(number_format($this->totalSize)),' Bytes | ',esc_html(size_format($this->totalSize)),'</td></tr>
+					</table>
+				</div>
+			</div>';
 		}
 	echo '
 	</div>
